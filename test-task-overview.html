@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务总览测试 - 虚拟动物园</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- 皮肤切换器将通过JavaScript动态添加 -->
+    
+    <div id="app">
+        <!-- 主导航 -->
+        <nav class="main-nav" role="tablist" aria-label="主要导航">
+            <button class="nav-tab" data-tab="my-zoo" role="tab" aria-selected="false" aria-controls="my-zoo" tabindex="-1">我的动物园</button>
+            <button class="nav-tab active" data-tab="growth-progress" role="tab" aria-selected="true" aria-controls="growth-progress" tabindex="0">成长进度</button>
+            <button class="nav-tab" data-tab="animal-encyclopedia" role="tab" aria-selected="false" aria-controls="animal-encyclopedia" tabindex="-1">动物图鉴</button>
+        </nav>
+
+        <!-- 主内容区域 -->
+        <main class="main-content">
+            <!-- 成长进度页面 -->
+            <section id="growth-progress" class="tab-content active" role="tabpanel" aria-labelledby="growth-progress-tab">
+                <h2>成长进度</h2>
+                
+                <!-- 任务总览区域 -->
+                <div class="tasks-overview-section">
+                    <h3>📋 任务总览</h3>
+                    
+                    <!-- 任务统计 -->
+                    <div class="tasks-stats">
+                        <div class="stat-card">
+                            <div class="stat-number" id="total-tasks">12</div>
+                            <div class="stat-label">总任务</div>
+                        </div>
+                        <div class="stat-card completed">
+                            <div class="stat-number" id="completed-tasks">8</div>
+                            <div class="stat-label">已完成</div>
+                        </div>
+                        <div class="stat-card pending">
+                            <div class="stat-number" id="pending-tasks">3</div>
+                            <div class="stat-label">进行中</div>
+                        </div>
+                        <div class="stat-card deleted">
+                            <div class="stat-number" id="deleted-tasks">1</div>
+                            <div class="stat-label">已删除</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 任务筛选 -->
+                    <div class="tasks-filter">
+                        <button class="filter-btn active" data-filter="all">全部任务</button>
+                        <button class="filter-btn" data-filter="pending">进行中</button>
+                        <button class="filter-btn" data-filter="completed">已完成</button>
+                        <button class="filter-btn" data-filter="deleted">已删除</button>
+                    </div>
+                    
+                    <!-- 任务列表 -->
+                    <div class="all-tasks-list" id="all-tasks-list">
+                        <!-- 示例任务项 -->
+                        <div class="overview-task-item completed">
+                            <div class="task-animal-icon">🐱</div>
+                            <div class="overview-task-content">
+                                <div class="overview-task-title">给自己泡一杯喜欢的茶</div>
+                                <div class="overview-task-meta">
+                                    <span class="task-animal-name">小猫咪</span>
+                                    <span class="task-zone-label">自我关怀园区</span>
+                                    <span class="task-status-badge completed">已完成</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="overview-task-item pending">
+                            <div class="task-animal-icon">🦊</div>
+                            <div class="overview-task-content">
+                                <div class="overview-task-title">写下现在的感受，不加评判</div>
+                                <div class="overview-task-meta">
+                                    <span class="task-animal-name">小狐狸</span>
+                                    <span class="task-zone-label">情绪关怀园区</span>
+                                    <span class="task-status-badge pending">进行中</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="overview-task-item deleted">
+                            <div class="task-animal-icon">🦌</div>
+                            <div class="overview-task-content">
+                                <div class="overview-task-title">做10个深蹲或俯卧撑</div>
+                                <div class="overview-task-meta">
+                                    <span class="task-animal-name">小鹿</span>
+                                    <span class="task-zone-label">身体健康园区</span>
+                                    <span class="task-status-badge deleted">已删除</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 成长进度区域 -->
+                <div class="growth-progress-section">
+                    <h3>📈 动物成长进度</h3>
+                    <div class="progress-container">
+                        <div class="animal-progress">
+                            <div class="animal-name">🐱 小猫咪</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 65%"></div>
+                            </div>
+                            <div class="progress-info">
+                                <span class="progress-text">65%</span>
+                                <span class="growth-stage">少年</span>
+                            </div>
+                            <div class="experience-info">
+                                <small>经验值: 195 / 300</small>
+                            </div>
+                        </div>
+                        
+                        <div class="animal-progress">
+                            <div class="animal-name">🦊 小狐狸</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 30%"></div>
+                            </div>
+                            <div class="progress-info">
+                                <span class="progress-text">30%</span>
+                                <span class="growth-stage">幼崽</span>
+                            </div>
+                            <div class="experience-info">
+                                <small>经验值: 30 / 100</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/dataManager.js"></script>
+    <script src="js/chatManager.js"></script>
+    <script src="js/app.js"></script>
+    
+    <script>
+        // 简单测试脚本
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('任务总览测试页面加载完成');
+            
+            // 测试筛选按钮
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    const filter = e.target.dataset.filter;
+                    console.log('筛选:', filter);
+                    
+                    // 简单的筛选逻辑
+                    const tasks = document.querySelectorAll('.overview-task-item');
+                    tasks.forEach(task => {
+                        if (filter === 'all') {
+                            task.style.display = 'flex';
+                        } else {
+                            task.style.display = task.classList.contains(filter) ? 'flex' : 'none';
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

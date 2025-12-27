@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎲 动物任务系统演示</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <h1 style="text-align: center; color: #8B4513; font-family: 'Courier New', monospace; margin-bottom: 30px; font-size: 28px; text-shadow: 2px 2px 4px rgba(139,69,19,0.3);">
+            🎲✨ 动物任务系统演示 ✨🎲
+        </h1>
+        
+        <!-- 功能说明 -->
+        <div style="text-align: center; margin-bottom: 30px; padding: 20px; background: rgba(255,255,255,0.9); border-radius: 15px; border: 3px solid #87CEEB; backdrop-filter: blur(5px);">
+            <h3 style="color: #2F4F4F; font-family: 'Courier New', monospace; margin-bottom: 15px;">🎯 动物任务系统功能</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; font-family: 'Courier New', monospace; font-size: 12px;">
+                <div style="text-align: center; padding: 15px; background: rgba(255,215,0,0.1); border: 2px solid #FFD700; border-radius: 10px;">
+                    <div style="font-size: 32px; margin-bottom: 8px;">🐱</div>
+                    <div style="font-weight: bold; color: #8B4513; margin-bottom: 5px;">点击动物卡片</div>
+                    <div style="color: #666; line-height: 1.3;">点击任意动物卡片<br>打开任务列表界面<br>查看和管理任务</div>
+                </div>
+                <div style="text-align: center; padding: 15px; background: rgba(255,165,0,0.1); border: 2px solid #FFA500; border-radius: 10px;">
+                    <div style="font-size: 32px; margin-bottom: 8px;">🎲</div>
+                    <div style="font-weight: bold; color: #FF8C00; margin-bottom: 5px;">骰子生成任务</div>
+                    <div style="color: #666; line-height: 1.3;">点击骰子按钮<br>随机生成self care任务<br>每种动物有专属任务</div>
+                </div>
+                <div style="text-align: center; padding: 15px; background: rgba(50,205,50,0.1); border: 2px solid #32CD32; border-radius: 10px;">
+                    <div style="font-size: 32px; margin-bottom: 8px;">✅</div>
+                    <div style="font-weight: bold; color: #228B22; margin-bottom: 5px;">完成任务</div>
+                    <div style="color: #666; line-height: 1.3;">点击完成按钮<br>获得经验值奖励<br>帮助动物成长</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 主内容区域 -->
+        <main class="main-content">
+            <section class="tab-content active">
+                <h2>我的动物园</h2>
+                
+                <!-- 使用说明 -->
+                <div style="margin-bottom: 25px; padding: 20px; background: rgba(255,240,245,0.9); border: 3px solid #FFB6C1; border-radius: 20px; text-align: center;">
+                    <h3 style="color: #8B4513; font-family: 'Courier New', monospace; margin-bottom: 15px;">📖 使用说明</h3>
+                    <div style="font-family: 'Courier New', monospace; font-size: 14px; color: #666; line-height: 1.6;">
+                        <p style="margin-bottom: 10px;">👆 <strong>点击任意动物卡片</strong> 打开任务列表</p>
+                        <p style="margin-bottom: 10px;">🎲 <strong>点击骰子按钮</strong> 生成随机self care任务</p>
+                        <p style="margin-bottom: 10px;">✅ <strong>完成任务</strong> 获得经验值，帮助动物成长</p>
+                        <p>🗑️ <strong>删除不需要的任务</strong> 保持列表整洁</p>
+                    </div>
+                </div>
+
+                <!-- 动物展示区域 -->
+                <div class="animals-container">
+                    <!-- 动物卡片将通过JavaScript动态生成 -->
+                </div>
+
+                <!-- 任务类型说明 -->
+                <div style="margin-top: 30px; padding: 25px; background: rgba(240,248,255,0.8); border: 3px solid #87CEEB; border-radius: 20px;">
+                    <h3 style="text-align: center; color: #2F4F4F; font-family: 'Courier New', monospace; margin-bottom: 20px;">🌈 不同动物的任务类型</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; font-family: 'Courier New', monospace; font-size: 11px;">
+                        <div style="text-align: center; padding: 12px; background: rgba(255,182,193,0.2); border: 2px solid #FFB6C1; border-radius: 8px;">
+                            <div style="font-size: 24px; margin-bottom: 5px;">🐱</div>
+                            <div style="font-weight: bold; color: #8B4513; margin-bottom: 3px;">小猫咪</div>
+                            <div style="color: #666;">自我关怀任务<br>温柔对待自己</div>
+                        </div>
+                        <div style="text-align: center; padding: 12px; background: rgba(255,165,0,0.2); border: 2px solid #FFA500; border-radius: 8px;">
+                            <div style="font-size: 24px; margin-bottom: 5px;">🦌</div>
+                            <div style="font-weight: bold; color: #8B4513; margin-bottom: 3px;">小鹿</div>
+                            <div style="color: #666;">身体健康任务<br>运动饮食睡眠</div>
+                        </div>
+                        <div style="text-align: center; padding: 12px; background: rgba(255,99,71,0.2); border: 2px solid #FF6347; border-radius: 8px;">
+                            <div style="font-size: 24px; margin-bottom: 5px;">🦊</div>
+                            <div style="font-weight: bold; color: #8B4513; margin-bottom: 3px;">小狐狸</div>
+                            <div style="color: #666;">情绪关怀任务<br>心理健康管理</div>
+                        </div>
+                        <div style="text-align: center; padding: 12px; background: rgba(50,205,50,0.2); border: 2px solid #32CD32; border-radius: 8px;">
+                            <div style="font-size: 24px; margin-bottom: 5px;">🦜</div>
+                            <div style="font-weight: bold; color: #8B4513; margin-bottom: 3px;">鹦鹉</div>
+                            <div style="color: #666;">创造力任务<br>学习兴趣爱好</div>
+                        </div>
+                        <div style="text-align: center; padding: 12px; background: rgba(135,206,235,0.2); border: 2px solid #87CEEB; border-radius: 8px;">
+                            <div style="font-size: 24px; margin-bottom: 5px;">🐧</div>
+                            <div style="font-weight: bold; color: #8B4513; margin-bottom: 3px;">企鹅</div>
+                            <div style="color: #666;">社交连接任务<br>人际关系维护</div>
+                        </div>
+                        <div style="text-align: center; padding: 12px; background: rgba(222,184,135,0.2); border: 2px solid #DEB887; border-radius: 8px;">
+                            <div style="font-size: 24px; margin-bottom: 5px;">🦫</div>
+                            <div style="font-weight: bold; color: #8B4513; margin-bottom: 3px;">海狸</div>
+                            <div style="color: #666;">生活整理任务<br>空间环境优化</div>
+                        </div>
+                        <div style="text-align: center; padding: 12px; background: rgba(221,160,221,0.2); border: 2px solid #DDA0DD; border-radius: 8px;">
+                            <div style="font-size: 24px; margin-bottom: 5px;">🦥</div>
+                            <div style="font-weight: bold; color: #8B4513; margin-bottom: 3px;">树懒</div>
+                            <div style="color: #666;">休息放松任务<br>慢节奏生活</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <!-- 任务列表模态框 -->
+        <div id="animal-tasks-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="animal-tasks-header">
+                    <h3 id="animal-tasks-title">🐱 小猫咪的任务列表</h3>
+                    <button class="close-tasks-btn">✖️</button>
+                </div>
+                
+                <div class="tasks-content">
+                    <!-- 骰子按钮 -->
+                    <div class="dice-section">
+                        <button id="dice-btn" class="dice-btn">
+                            <span class="dice-icon">🎲</span>
+                            <span class="dice-text">随机生成任务</span>
+                        </button>
+                        <p class="dice-hint">点击骰子为这只小动物生成一个随机的自我关怀任务</p>
+                    </div>
+                    
+                    <!-- 任务列表 -->
+                    <div class="tasks-list">
+                        <h4>📋 当前任务</h4>
+                        <div id="current-tasks-list">
+                            <!-- 任务项将通过JavaScript动态生成 -->
+                        </div>
+                        
+                        <div class="empty-tasks" id="empty-tasks-message">
+                            <p>🌟 还没有任务哦</p>
+                            <p>点击上面的骰子按钮来生成第一个任务吧！</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 脚本加载 -->
+    <script src="js/config.js"></script>
+    <script src="js/dataManager.js"></script>
+    <script src="js/chatManager.js"></script>
+    <script src="js/app.js"></script>
+
+    <script>
+        let taskApp;
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 初始化应用
+            taskApp = new VirtualZooApp();
+            
+            console.log('动物任务系统演示页面已加载');
+            
+            // 添加一些演示提示
+            setTimeout(() => {
+                if (taskApp && taskApp.showMessage) {
+                    taskApp.showMessage('点击任意动物卡片开始体验任务系统！', 'info');
+                }
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

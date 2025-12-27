@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>版本切换测试 - 虚拟动物园</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        /* 测试提示条 */
+        .test-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(90deg, #32CD32, #90EE90);
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            font-weight: bold;
+            z-index: 10000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        /* 为测试横幅留出空间 */
+        #app {
+            margin-top: 35px;
+        }
+        
+        /* 调整切换器位置 */
+        .version-switcher {
+            top: 45px !important;
+        }
+        
+        .theme-switcher {
+            top: 45px !important;
+        }
+        
+        /* 版本指示器 */
+        .version-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            z-index: 9998;
+            transition: all 0.3s ease;
+        }
+        
+        .version-indicator.mobile {
+            background: rgba(255,105,180,0.9);
+        }
+        
+        .version-indicator.desktop {
+            background: rgba(50,205,50,0.9);
+        }
+    </style>
+</head>
+<body class="desktop-version">
+    <!-- 测试横幅 -->
+    <div class="test-banner">
+        🔄 版本切换测试 - 右上角切换手机版/网页版，左上角切换主题皮肤
+    </div>
+    
+    <!-- 版本指示器 -->
+    <div class="version-indicator desktop" id="version-indicator">
+        🖥️ 当前：网页版
+    </div>
+    
+    <div id="app">
+        <!-- 主导航 -->
+        <nav class="main-nav" role="tablist" aria-label="主要导航">
+            <button class="nav-tab active" data-tab="my-zoo" role="tab" aria-selected="true" aria-controls="my-zoo" tabindex="0">我的动物园</button>
+            <button class="nav-tab" data-tab="growth-progress" role="tab" aria-selected="false" aria-controls="growth-progress" tabindex="-1">成长进度</button>
+            <button class="nav-tab" data-tab="animal-encyclopedia" role="tab" aria-selected="false" aria-controls="animal-encyclopedia" tabindex="-1">动物图鉴</button>
+        </nav>
+
+        <!-- 主内容区域 -->
+        <main class="main-content">
+            <!-- 我的动物园页面 -->
+            <section id="my-zoo" class="tab-content active" role="tabpanel" aria-labelledby="my-zoo-tab">
+                <div class="weather-selector">
+                    <h3>今天的天气</h3>
+                    
+                    <!-- 心情描述输入 -->
+                    <div class="mood-input-section">
+                        <div class="mood-input-container">
+                            <input type="text" id="mood-description" placeholder="用一句话描述你今天的心情..." maxlength="100">
+                            <button id="analyze-mood-btn">分析心情</button>
+                        </div>
+                        <div class="mood-analysis-result hidden" id="mood-analysis-result">
+                            <!-- 分析结果将在这里显示 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 天气按钮 -->
+                    <div class="weather-buttons">
+                        <button class="weather-btn" data-weather="sunny">☀️ 晴朗</button>
+                        <button class="weather-btn" data-weather="cloudy">☁️ 多云</button>
+                        <button class="weather-btn" data-weather="rainy">🌧️ 雨天</button>
+                        <button class="weather-btn" data-weather="stormy">⛈️ 暴风雨</button>
+                    </div>
+                </div>
+
+                <div class="animals-container">
+                    <!-- 示例动物卡片 -->
+                    <div class="animal-card" data-animal-type="cat">
+                        <div class="animal-image-container">
+                            <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=200&h=200&fit=crop&crop=face" alt="小猫咪" class="animal-photo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="animal-emoji-fallback" style="display: none;">🐱</div>
+                        </div>
+                        <div class="animal-info">
+                            <h4>小猫咪</h4>
+                            <p class="growth-stage">少年阶段</p>
+                            <p class="task-count">今日任务: 2/3</p>
+                            <p class="gentle-tip">代表自我关怀和温柔对待自己</p>
+                        </div>
+                    </div>
+                    
+                    <div class="animal-card" data-animal-type="fox">
+                        <div class="animal-image-container">
+                            <img src="https://images.unsplash.com/photo-1474511320723-9a56873867b5?w=200&h=200&fit=crop&crop=face" alt="小狐狸" class="animal-photo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="animal-emoji-fallback" style="display: none;">🦊</div>
+                        </div>
+                        <div class="animal-info">
+                            <h4>小狐狸</h4>
+                            <p class="growth-stage">幼崽阶段</p>
+                            <p class="task-count">今日任务: 1/3</p>
+                            <p class="gentle-tip">代表情绪表达、心理健康、压力管理</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 通用对话框 -->
+                <div class="general-chat-section">
+                    <h3>💬 和动物朋友们聊聊</h3>
+                    <div class="chat-preview">
+                        <div class="chat-input-simple">
+                            <input type="text" id="general-chat-input" placeholder="说说你今天的想法..." maxlength="200">
+                            <button id="general-chat-btn">发送</button>
+                        </div>
+                        <div class="chat-hint">
+                            <p>💡 提示：聊天时提到不同话题可能会解锁新的动物朋友哦！</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="add-task-btn">+</button>
+                <button class="chat-btn">详细聊天</button>
+            </section>
+
+            <!-- 成长进度页面 -->
+            <section id="growth-progress" class="tab-content" role="tabpanel" aria-labelledby="growth-progress-tab">
+                <h2>成长进度</h2>
+                
+                <!-- 任务总览区域 -->
+                <div class="tasks-overview-section">
+                    <h3>📋 任务总览</h3>
+                    
+                    <!-- 任务统计 -->
+                    <div class="tasks-stats">
+                        <div class="stat-card">
+                            <div class="stat-number" id="total-tasks">12</div>
+                            <div class="stat-label">总任务</div>
+                        </div>
+                        <div class="stat-card completed">
+                            <div class="stat-number" id="completed-tasks">8</div>
+                            <div class="stat-label">已完成</div>
+                        </div>
+                        <div class="stat-card pending">
+                            <div class="stat-number" id="pending-tasks">3</div>
+                            <div class="stat-label">进行中</div>
+                        </div>
+                        <div class="stat-card deleted">
+                            <div class="stat-number" id="deleted-tasks">1</div>
+                            <div class="stat-label">已删除</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 任务筛选 -->
+                    <div class="tasks-filter">
+                        <button class="filter-btn active" data-filter="all">全部任务</button>
+                        <button class="filter-btn" data-filter="pending">进行中</button>
+                        <button class="filter-btn" data-filter="completed">已完成</button>
+                        <button class="filter-btn" data-filter="deleted">已删除</button>
+                    </div>
+                    
+                    <!-- 任务列表 -->
+                    <div class="all-tasks-list" id="all-tasks-list">
+                        <!-- 示例任务项 -->
+                        <div class="overview-task-item completed">
+                            <div class="task-animal-icon">🐱</div>
+                            <div class="overview-task-content">
+                                <div class="overview-task-title">给自己泡一杯喜欢的茶</div>
+                                <div class="overview-task-meta">
+                                    <span class="task-animal-name">小猫咪</span>
+                                    <span class="task-zone-label">自我关怀园区</span>
+                                    <span class="task-status-badge completed">已完成</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="overview-task-item pending">
+                            <div class="task-animal-icon">🦊</div>
+                            <div class="overview-task-content">
+                                <div class="overview-task-title">写下现在的感受，不加评判</div>
+                                <div class="overview-task-meta">
+                                    <span class="task-animal-name">小狐狸</span>
+                                    <span class="task-zone-label">情绪关怀园区</span>
+                                    <span class="task-status-badge pending">进行中</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="overview-task-item deleted">
+                            <div class="task-animal-icon">🦌</div>
+                            <div class="overview-task-content">
+                                <div class="overview-task-title">做10个深蹲或俯卧撑</div>
+                                <div class="overview-task-meta">
+                                    <span class="task-animal-name">小鹿</span>
+                                    <span class="task-zone-label">身体健康园区</span>
+                                    <span class="task-status-badge deleted">已删除</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 成长进度区域 -->
+                <div class="growth-progress-section">
+                    <h3>📈 动物成长进度</h3>
+                    <div class="progress-container">
+                        <div class="animal-progress">
+                            <div class="animal-name">🐱 小猫咪</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 65%"></div>
+                            </div>
+                            <div class="progress-info">
+                                <span class="progress-text">65%</span>
+                                <span class="growth-stage">少年</span>
+                            </div>
+                            <div class="experience-info">
+                                <small>经验值: 195 / 300</small>
+                            </div>
+                        </div>
+                        
+                        <div class="animal-progress">
+                            <div class="animal-name">🦊 小狐狸</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 30%"></div>
+                            </div>
+                            <div class="progress-info">
+                                <span class="progress-text">30%</span>
+                                <span class="growth-stage">幼崽</span>
+                            </div>
+                            <div class="experience-info">
+                                <small>经验值: 30 / 100</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 动物图鉴页面 -->
+            <section id="animal-encyclopedia" class="tab-content" role="tabpanel" aria-labelledby="animal-encyclopedia-tab">
+                <h2>动物图鉴</h2>
+                <div class="encyclopedia-grid">
+                    <!-- 示例图鉴卡片 -->
+                    <div class="encyclopedia-card" data-animal-type="cat">
+                        <div class="encyclopedia-animal-image">
+                            <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=200&h=200&fit=crop&crop=face" alt="小猫咪" class="encyclopedia-photo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="encyclopedia-emoji-fallback" style="display: none;">🐱</div>
+                        </div>
+                        <h4>小猫咪</h4>
+                        <p>代表自我关怀和温柔对待自己</p>
+                        <span class="status owned">已拥有</span>
+                        <button class="view-tarot-btn">查看塔罗牌</button>
+                    </div>
+                    
+                    <div class="encyclopedia-card locked" data-animal-type="deer">
+                        <div class="encyclopedia-animal-image">
+                            <img src="https://via.placeholder.com/200x200/cccccc/666666?text=?" alt="???" class="encyclopedia-photo">
+                            <div class="encyclopedia-emoji-fallback" style="display: none;">❓</div>
+                        </div>
+                        <h4>???</h4>
+                        <p>完成相关任务解锁</p>
+                        <span class="status locked">未解锁</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 任务列表模态框 -->
+        <div id="animal-tasks-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="animal-tasks-header">
+                    <h3 id="animal-tasks-title">🐱 小猫咪的任务列表</h3>
+                    <button class="close-tasks-btn">✖️</button>
+                </div>
+                
+                <div class="tasks-content">
+                    <!-- 骰子按钮 -->
+                    <div class="dice-section">
+                        <button id="dice-btn" class="dice-btn">
+                            <span class="dice-icon">🎲</span>
+                            <span class="dice-text">随机生成任务</span>
+                        </button>
+                        <p class="dice-hint">点击骰子为这只小动物生成一个随机的自我关怀任务</p>
+                    </div>
+                    
+                    <!-- 任务列表 -->
+                    <div class="tasks-list">
+                        <h4>📋 当前任务</h4>
+                        <div id="current-tasks-list">
+                            <!-- 任务项将通过JavaScript动态生成 -->
+                        </div>
+                        
+                        <div class="empty-tasks" id="empty-tasks-message">
+                            <p>🌟 还没有任务哦</p>
+                            <p>点击上面的骰子按钮来生成第一个任务吧！</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 任务创建模态框 -->
+        <div id="task-modal" class="modal hidden">
+            <div class="modal-content">
+                <h3>创建新任务</h3>
+                <form id="task-form">
+                    <input type="text" id="task-title" placeholder="任务标题" required>
+                    <textarea id="task-description" placeholder="任务描述（可选）"></textarea>
+                    <select id="garden-zone" required>
+                        <option value="">选择园区</option>
+                        <option value="self-care">自我关怀园区</option>
+                        <option value="physical">身体健康园区</option>
+                        <option value="emotional">情绪关怀园区</option>
+                        <option value="creative">创造力园区</option>
+                        <option value="social">社交连接园区</option>
+                        <option value="organization">生活整理园区</option>
+                        <option value="rest">休息放松园区</option>
+                    </select>
+                    <div class="modal-buttons">
+                        <button type="button" class="cancel-btn">取消</button>
+                        <button type="submit" class="create-btn">创建</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 聊天模态框 -->
+        <div id="chat-modal" class="modal hidden">
+            <div class="modal-content chat-content">
+                <!-- 聊天头部 -->
+                <div class="chat-header">
+                    <h3 id="chat-title">🐱 和小猫咪聊聊</h3>
+                    <div class="chat-controls">
+                        <button id="settings-btn" class="settings-btn">⚙️ 设置</button>
+                        <button class="close-chat-btn">✖️</button>
+                    </div>
+                </div>
+
+                <!-- 动物选择（初始状态） -->
+                <div class="animal-selection">
+                    <p>选择一个动物朋友开始聊天：</p>
+                    <div class="animal-grid">
+                        <button class="animal-select-btn" data-animal="cat">
+                            <div class="animal-avatar">🐱</div>
+                            <span>小猫咪</span>
+                        </button>
+                        <button class="animal-select-btn" data-animal="fox">
+                            <div class="animal-avatar">🦊</div>
+                            <span>小狐狸</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 聊天界面 -->
+                <div class="chat-interface hidden">
+                    <div class="chat-messages" id="chat-messages"></div>
+                    <div class="chat-input-container">
+                        <input type="text" id="chat-input" placeholder="输入消息..." maxlength="200">
+                        <button id="send-btn">发送</button>
+                    </div>
+                    <div class="chat-actions">
+                        <button id="reflection-btn" class="action-btn">🤔 开始复盘</button>
+                        <button id="clear-chat-btn" class="action-btn">🗑️ 清空聊天</button>
+                    </div>
+                </div>
+
+                <!-- API配置面板 -->
+                <div class="api-config-panel hidden">
+                    <h4>🔧 API配置</h4>
+                    <form id="api-config-form">
+                        <div class="config-group">
+                            <label for="api-url">API地址:</label>
+                            <input type="url" id="api-url" placeholder="https://api.openai.com/v1/chat/completions" required>
+                            <small>支持OpenAI兼容的API接口</small>
+                        </div>
+                        
+                        <div class="config-group">
+                            <label for="api-key">API密钥:</label>
+                            <input type="password" id="api-key" placeholder="sk-..." required>
+                            <small>你的API密钥将被安全存储</small>
+                        </div>
+                        
+                        <div class="config-group">
+                            <label for="model-name">模型名称:</label>
+                            <input type="text" id="model-name" placeholder="gpt-3.5-turbo" required>
+                            <small>如: gpt-3.5-turbo, gpt-4, claude-3等</small>
+                        </div>
+                        
+                        <div class="config-actions">
+                            <button type="button" id="test-api-btn" class="test-btn">🧪 测试连接</button>
+                            <button type="submit" class="save-btn">💾 保存配置</button>
+                        </div>
+                    </form>
+                    
+                    <div class="config-status hidden" id="config-status"></div>
+                    
+                    <button id="back-to-chat-btn" class="back-btn">← 返回聊天</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 加载指示器 -->
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>加载中...</p>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/dataManager.js"></script>
+    <script src="js/chatManager.js"></script>
+    <script src="js/app.js"></script>
+    
+    <script>
+        // 版本切换测试脚本
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('版本切换测试页面加载完成');
+            
+            // 监听版本切换
+            const originalSwitchVersion = window.app ? window.app.switchVersion : null;
+            if (window.app && originalSwitchVersion) {
+                window.app.switchVersion = function(version) {
+                    // 调用原始方法
+                    originalSwitchVersion.call(this, version);
+                    
+                    // 更新版本指示器
+                    const indicator = document.getElementById('version-indicator');
+                    if (indicator) {
+                        indicator.className = `version-indicator ${version}`;
+                        indicator.textContent = version === 'mobile' ? '📱 当前：手机版' : '🖥️ 当前：网页版';
+                    }
+                    
+                    console.log('版本指示器已更新:', version);
+                };
+            }
+            
+            // 简单的筛选功能测试
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    const filter = e.target.dataset.filter;
+                    console.log('任务筛选:', filter);
+                    
+                    // 简单的筛选逻辑
+                    const tasks = document.querySelectorAll('.overview-task-item');
+                    tasks.forEach(task => {
+                        if (filter === 'all') {
+                            task.style.display = 'flex';
+                        } else {
+                            task.style.display = task.classList.contains(filter) ? 'flex' : 'none';
+                        }
+                    });
+                });
+            });
+            
+            // 添加触摸事件支持（手机版）
+            document.addEventListener('touchstart', function() {}, {passive: true});
+            
+            // 防止双击缩放
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', function (event) {
+                const now = (new Date()).getTime();
+                if (now - lastTouchEnd <= 300) {
+                    event.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, false);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>虚拟动物园 - 完整功能测试</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- 像素风格装饰元素 -->
+        <div class="pixel-decoration"></div>
+        <div class="pixel-decoration"></div>
+        <div class="pixel-decoration"></div>
+        <div class="pixel-decoration"></div>
+        
+        <!-- 主导航 -->
+        <nav class="main-nav" role="tablist" aria-label="主要导航">
+            <button class="nav-tab active" data-tab="my-zoo" role="tab" aria-selected="true" aria-controls="my-zoo" tabindex="0">我的动物园</button>
+            <button class="nav-tab" data-tab="growth-progress" role="tab" aria-selected="false" aria-controls="growth-progress" tabindex="-1">成长进度</button>
+            <button class="nav-tab" data-tab="animal-encyclopedia" role="tab" aria-selected="false" aria-controls="animal-encyclopedia" tabindex="-1">动物图鉴</button>
+        </nav>
+
+        <!-- 主内容区域 -->
+        <main class="main-content">
+            <!-- 我的动物园页面 -->
+            <section id="my-zoo" class="tab-content active" role="tabpanel" aria-labelledby="my-zoo-tab">
+                <div class="weather-selector">
+                    <h3>今天的心情天气</h3>
+                    <div class="weather-buttons">
+                        <button class="weather-btn" data-weather="sunny">☀️ 晴朗</button>
+                        <button class="weather-btn" data-weather="cloudy">☁️ 多云</button>
+                        <button class="weather-btn" data-weather="rainy">🌧️ 雨天</button>
+                        <button class="weather-btn" data-weather="stormy">⛈️ 暴风雨</button>
+                    </div>
+                </div>
+
+                <div class="animals-container">
+                    <div class="animal-card">
+                        <div class="animal-image">🐱</div>
+                        <div class="animal-info">
+                            <h4>小猫咪</h4>
+                            <p class="growth-stage">幼崽阶段</p>
+                            <p class="task-count">今日任务: 0/3</p>
+                            <p class="gentle-tip">记得给自己一些温柔的时光</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="add-task-btn">+</button>
+                <button class="chat-btn">和动物聊聊</button>
+            </section>
+
+            <!-- 成长进度页面 -->
+            <section id="growth-progress" class="tab-content" role="tabpanel" aria-labelledby="growth-progress-tab">
+                <h2>成长进度</h2>
+                <div class="progress-container">
+                    <div class="animal-progress">
+                        <div class="animal-name">小猫咪</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 30%"></div>
+                        </div>
+                        <span class="progress-text">30%</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 动物图鉴页面 -->
+            <section id="animal-encyclopedia" class="tab-content" role="tabpanel" aria-labelledby="animal-encyclopedia-tab">
+                <h2>动物图鉴</h2>
+                <div class="encyclopedia-grid">
+                    <div class="encyclopedia-card">
+                        <div class="animal-image">🐱</div>
+                        <h4>小猫咪</h4>
+                        <p>代表自我关怀和温柔</p>
+                        <span class="status owned">已拥有</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 任务创建模态框 -->
+        <div id="task-modal" class="modal hidden">
+            <div class="modal-content">
+                <h3>创建新任务</h3>
+                <form id="task-form">
+                    <input type="text" id="task-title" placeholder="任务标题" required>
+                    <textarea id="task-description" placeholder="任务描述（可选）"></textarea>
+                    <select id="garden-zone" required>
+                        <option value="">选择园区</option>
+                        <option value="self-care">自我关怀园区</option>
+                        <option value="emotional">情感园区</option>
+                        <option value="physical">身体园区</option>
+                        <option value="social">社交园区</option>
+                    </select>
+                    <div class="modal-buttons">
+                        <button type="button" class="cancel-btn">取消</button>
+                        <button type="submit" class="create-btn">创建</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 聊天模态框 -->
+        <div id="chat-modal" class="modal hidden">
+            <div class="modal-content chat-content">
+                <!-- 聊天头部 -->
+                <div class="chat-header">
+                    <h3 id="chat-title">🐱 和小猫咪聊聊</h3>
+                    <div class="chat-controls">
+                        <button id="settings-btn" class="settings-btn">⚙️ 设置</button>
+                        <button class="close-chat-btn">✖️</button>
+                    </div>
+                </div>
+
+                <!-- 动物选择（初始状态） -->
+                <div class="animal-selection">
+                    <p>选择一个动物朋友开始聊天：</p>
+                    <div class="animal-grid">
+                        <button class="animal-select-btn" data-animal="cat">
+                            <div class="animal-avatar">🐱</div>
+                            <span>小猫咪</span>
+                        </button>
+                        <button class="animal-select-btn" data-animal="dog">
+                            <div class="animal-avatar">🐶</div>
+                            <span>小狗狗</span>
+                        </button>
+                        <button class="animal-select-btn" data-animal="rabbit">
+                            <div class="animal-avatar">🐰</div>
+                            <span>小兔子</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 聊天界面 -->
+                <div class="chat-interface hidden">
+                    <div class="chat-messages" id="chat-messages"></div>
+                    <div class="chat-input-container">
+                        <input type="text" id="chat-input" placeholder="输入消息..." maxlength="200">
+                        <button id="send-btn">发送</button>
+                    </div>
+                    <div class="chat-actions">
+                        <button id="reflection-btn" class="action-btn">🤔 开始复盘</button>
+                        <button id="clear-chat-btn" class="action-btn">🗑️ 清空聊天</button>
+                    </div>
+                </div>
+
+                <!-- API配置面板 -->
+                <div class="api-config-panel hidden">
+                    <h4>🔧 API配置</h4>
+                    <form id="api-config-form">
+                        <div class="config-group">
+                            <label for="api-url">API地址:</label>
+                            <input type="url" id="api-url" placeholder="https://api.openai.com/v1/chat/completions" required>
+                            <small>支持OpenAI兼容的API接口</small>
+                        </div>
+                        
+                        <div class="config-group">
+                            <label for="api-key">API密钥:</label>
+                            <input type="password" id="api-key" placeholder="sk-..." required>
+                            <small>你的API密钥将被安全存储</small>
+                        </div>
+                        
+                        <div class="config-group">
+                            <label for="model-name">模型名称:</label>
+                            <input type="text" id="model-name" placeholder="gpt-3.5-turbo" required>
+                            <small>如: gpt-3.5-turbo, gpt-4, claude-3等</small>
+                        </div>
+                        
+                        <div class="config-actions">
+                            <button type="button" id="test-api-btn" class="test-btn">🧪 测试连接</button>
+                            <button type="submit" class="save-btn">💾 保存配置</button>
+                        </div>
+                    </form>
+                    
+                    <div class="config-status hidden" id="config-status"></div>
+                    
+                    <button id="back-to-chat-btn" class="back-btn">← 返回聊天</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 加载指示器 -->
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>加载中...</p>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/dataManager.js"></script>
+    <script src="js/chatManager.js"></script>
+    <script src="js/app.js"></script>
+    
+    <script>
+        // 测试功能
+        console.log('虚拟动物园应用已加载');
+        console.log('配置:', window.zooConfig);
+        console.log('数据管理器:', window.dataManager);
+        console.log('聊天管理器:', window.chatManager);
+    </script>
+</body>
+</html>

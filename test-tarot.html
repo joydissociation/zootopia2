@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>塔罗牌解锁效果测试</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- 测试说明 -->
+        <div style="background: #2C1810; border: 4px solid #D4AF37; padding: 30px; margin: 20px; text-align: center; color: #D4AF37;">
+            <h1 style="margin: 0 0 20px 0; font-family: 'Courier New', monospace; font-size: 24px; text-transform: uppercase; letter-spacing: 3px;">
+                🔮 塔罗牌解锁效果测试
+            </h1>
+            <p style="margin: 0 0 20px 0; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6;">
+                点击下方按钮测试不同动物的塔罗牌解锁效果<br>
+                每个动物都有独特的塔罗牌设计和祝福语
+            </p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                <button onclick="showTarotCard('deer')" class="tarot-test-btn">🦌 小鹿塔罗牌</button>
+                <button onclick="showTarotCard('fox')" class="tarot-test-btn">🦊 小狐狸塔罗牌</button>
+                <button onclick="showTarotCard('parrot')" class="tarot-test-btn">🦜 鹦鹉塔罗牌</button>
+                <button onclick="showTarotCard('penguin')" class="tarot-test-btn">🐧 企鹅塔罗牌</button>
+                <button onclick="showTarotCard('beaver')" class="tarot-test-btn">🦫 海狸塔罗牌</button>
+                <button onclick="showTarotCard('sloth')" class="tarot-test-btn">🦥 树懒塔罗牌</button>
+            </div>
+            
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #D4AF37;">
+                <button onclick="resetTarotStatus()" class="tarot-reset-btn">重置塔罗牌状态</button>
+                <button onclick="showRandomTarot()" class="tarot-random-btn">随机塔罗牌</button>
+            </div>
+        </div>
+        
+        <!-- 加载指示器 -->
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>加载中...</p>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/dataManager.js"></script>
+    <script src="js/chatManager.js"></script>
+    <script src="js/app.js"></script>
+    
+    <style>
+        .tarot-test-btn {
+            background: linear-gradient(145deg, #D4AF37, #B8941F);
+            border: 3px solid #D4AF37;
+            color: #2C1810;
+            padding: 12px 20px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 14px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        .tarot-test-btn:hover {
+            background: linear-gradient(145deg, #FFD700, #D4AF37);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+        }
+        
+        .tarot-reset-btn, .tarot-random-btn {
+            background: linear-gradient(145deg, #8B4513, #654321);
+            border: 3px solid #8B4513;
+            color: #D4AF37;
+            padding: 10px 20px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .tarot-reset-btn:hover, .tarot-random-btn:hover {
+            background: linear-gradient(145deg, #A0522D, #8B4513);
+            transform: translateY(-2px);
+        }
+    </style>
+    
+    <script>
+        // 等待应用初始化
+        setTimeout(() => {
+            console.log('🔮 塔罗牌测试页面已加载');
+        }, 1000);
+        
+        // 显示指定动物的塔罗牌
+        function showTarotCard(animalType) {
+            if (app && app.showAnimalUnlockNotification) {
+                // 临时重置该动物的塔罗牌显示状态
+                const shownCards = window.zooConfig.getShownTarotCards();
+                const filteredCards = shownCards.filter(card => card !== animalType);
+                localStorage.setItem('shownTarotCards', JSON.stringify(filteredCards));
+                
+                // 显示塔罗牌
+                app.showAnimalUnlockNotification(animalType);
+            } else {
+                console.error('应用未完全加载');
+            }
+        }
+        
+        // 重置所有塔罗牌状态
+        function resetTarotStatus() {
+            localStorage.removeItem('shownTarotCards');
+            console.log('所有塔罗牌状态已重置');
+            alert('塔罗牌状态已重置！现在可以重新查看所有塔罗牌了。');
+        }
+        
+        // 显示随机塔罗牌
+        function showRandomTarot() {
+            const animals = ['deer', 'fox', 'parrot', 'penguin', 'beaver', 'sloth'];
+            const randomAnimal = animals[Math.floor(Math.random() * animals.length)];
+            showTarotCard(randomAnimal);
+        }
+        
+        // 键盘快捷键
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'r' || e.key === 'R') {
+                showRandomTarot();
+            } else if (e.key === 'Escape') {
+                // 关闭当前显示的塔罗牌
+                const tarotCard = document.querySelector('.tarot-unlock-card');
+                if (tarotCard) {
+                    const closeBtn = tarotCard.querySelector('.tarot-close-btn');
+                    if (closeBtn) {
+                        closeBtn.click();
+                    }
+                }
+            }
+        });
+        
+        // 显示快捷键提示
+        setTimeout(() => {
+            console.log('💡 快捷键提示:');
+            console.log('- 按 R 键显示随机塔罗牌');
+            console.log('- 按 ESC 键关闭当前塔罗牌');
+        }, 2000);
+    </script>
+</body>
+</html>

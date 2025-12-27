@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>快速修复 - 解锁小狐狸</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #87CEEB, #98FB98);
+            padding: 20px;
+            text-align: center;
+        }
+        .fix-container {
+            background: white;
+            border: 4px solid #4169E1;
+            padding: 30px;
+            max-width: 500px;
+            margin: 50px auto;
+            box-shadow: 6px 6px 0px #1E90FF;
+        }
+        button {
+            background: #32CD32;
+            border: 3px solid #228B22;
+            padding: 15px 30px;
+            color: white;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            text-transform: uppercase;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 2px 4px 0px #228B22;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border: 2px solid #999;
+            background: #f5f5f5;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="fix-container">
+        <h1>🦊 快速修复：解锁小狐狸</h1>
+        <p>点击下面的按钮来解锁小狐狸，让它出现在成长进度中：</p>
+        
+        <button id="unlock-fox">🦊 解锁小狐狸</button>
+        <button id="unlock-all">🌟 解锁所有动物</button>
+        <button id="reset-all">🔄 重置所有数据</button>
+        
+        <div class="status" id="status">
+            准备就绪...
+        </div>
+        
+        <div class="status">
+            <strong>当前已解锁的动物：</strong>
+            <div id="unlocked-list">加载中...</div>
+        </div>
+        
+        <p><a href="index.html" style="color: #4169E1; text-decoration: none; font-weight: bold;">← 返回主页面</a></p>
+        <p><a href="test-progress.html" style="color: #4169E1; text-decoration: none; font-weight: bold;">🧪 测试成长进度</a></p>
+    </div>
+
+    <script>
+        // 模拟配置对象
+        const zooConfig = {
+            ANIMALS: {
+                cat: { name: '小猫咪', emoji: '🐱' },
+                fox: { name: '小狐狸', emoji: '🦊' },
+                deer: { name: '小鹿', emoji: '🦌' },
+                parrot: { name: '鹦鹉', emoji: '🦜' },
+                penguin: { name: '企鹅', emoji: '🐧' },
+                beaver: { name: '海狸', emoji: '🦫' },
+                sloth: { name: '树懒', emoji: '🦥' }
+            },
+            
+            getUnlockedAnimals() {
+                const saved = localStorage.getItem('unlockedAnimals');
+                return saved ? JSON.parse(saved) : ['cat'];
+            },
+            
+            unlockAnimal(animalType) {
+                const unlocked = this.getUnlockedAnimals();
+                if (!unlocked.includes(animalType)) {
+                    unlocked.push(animalType);
+                    localStorage.setItem('unlockedAnimals', JSON.stringify(unlocked));
+                    return true;
+                }
+                return false;
+            }
+        };
+        
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+        }
+        
+        function updateUnlockedList() {
+            const unlocked = zooConfig.getUnlockedAnimals();
+            const list = unlocked.map(type => {
+                const animal = zooConfig.ANIMALS[type];
+                return animal ? `${animal.emoji} ${animal.name}` : type;
+            }).join(', ');
+            document.getElementById('unlocked-list').textContent = list;
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            updateUnlockedList();
+            
+            document.getElementById('unlock-fox').addEventListener('click', () => {
+                const isNew = zooConfig.unlockAnimal('fox');
+                if (isNew) {
+                    updateStatus('✅ 小狐狸已解锁！现在可以在成长进度中看到它了。');
+                } else {
+                    updateStatus('ℹ️ 小狐狸已经解锁过了。');
+                }
+                updateUnlockedList();
+            });
+            
+            document.getElementById('unlock-all').addEventListener('click', () => {
+                const allAnimals = Object.keys(zooConfig.ANIMALS);
+                let newUnlocks = 0;
+                
+                allAnimals.forEach(animalType => {
+                    if (zooConfig.unlockAnimal(animalType)) {
+                        newUnlocks++;
+                    }
+                });
+                
+                updateStatus(`✅ 解锁了 ${newUnlocks} 个新动物！所有动物现在都可用了。`);
+                updateUnlockedList();
+            });
+            
+            document.getElementById('reset-all').addEventListener('click', () => {
+                if (confirm('确定要重置所有数据吗？这将清除所有解锁的动物和进度。')) {
+                    localStorage.removeItem('unlockedAnimals');
+                    localStorage.removeItem('shownTarotCards');
+                    localStorage.removeItem('zoo_user_id');
+                    localStorage.removeItem('zoo_api_config');
+                    updateStatus('🔄 所有数据已重置。只有小猫咪保持解锁状态。');
+                    updateUnlockedList();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+</text>

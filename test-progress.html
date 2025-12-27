@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成长进度测试</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <h1>🐾 成长进度测试</h1>
+        
+        <div class="test-controls" style="margin: 20px 0; padding: 20px; background: #f0f8ff; border: 3px solid #4169e1;">
+            <h3>测试控制</h3>
+            <button id="unlock-fox-btn" style="margin: 5px; padding: 10px 15px; background: #32cd32; color: white; border: none; cursor: pointer;">解锁小狐狸</button>
+            <button id="unlock-deer-btn" style="margin: 5px; padding: 10px 15px; background: #32cd32; color: white; border: none; cursor: pointer;">解锁小鹿</button>
+            <button id="add-exp-btn" style="margin: 5px; padding: 10px 15px; background: #ffd700; color: #8b4513; border: none; cursor: pointer;">增加经验值</button>
+            <button id="reset-data-btn" style="margin: 5px; padding: 10px 15px; background: #ff6347; color: white; border: none; cursor: pointer;">重置数据</button>
+            <button id="refresh-progress-btn" style="margin: 5px; padding: 10px 15px; background: #4169e1; color: white; border: none; cursor: pointer;">刷新进度</button>
+        </div>
+
+        <div class="debug-info" style="margin: 20px 0; padding: 15px; background: #f5f5f5; border: 2px solid #999; font-family: monospace; font-size: 12px;">
+            <h4>调试信息</h4>
+            <div>已解锁动物: <span id="unlocked-animals">加载中...</span></div>
+            <div>用户动物数量: <span id="user-animals-count">0</span></div>
+            <div>数据库状态: <span id="db-status">未知</span></div>
+        </div>
+        
+        <main class="main-content">
+            <section id="growth-progress" class="tab-content active">
+                <h2>📈 成长进度</h2>
+                <div class="progress-container">
+                    <!-- 进度条将通过JavaScript动态生成 -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 脚本加载 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/dataManager.js"></script>
+    <script src="js/chatManager.js"></script>
+    <script src="js/app.js"></script>
+
+    <script>
+        let testApp;
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 初始化应用
+            testApp = new VirtualZooApp();
+            
+            // 等待初始化完成
+            await new Promise(resolve => {
+                const checkInit = () => {
+                    if (testApp.isInitialized) {
+                        resolve();
+                    } else {
+                        setTimeout(checkInit, 100);
+                    }
+                };
+                checkInit();
+            });
+            
+            // 更新调试信息
+            updateDebugInfo();
+            
+            // 绑定测试按钮事件
+            document.getElementById('unlock-fox-btn').addEventListener('click', async () => {
+                window.zooConfig.unlockAnimal('fox');
+                if (testApp.dataManager.supabase) {
+                    await testApp.dataManager.unlockAnimal('fox');
+                }
+                await testApp.loadUserData();
+                await testApp.loadGrowthProgress();
+                updateDebugInfo();
+                console.log('小狐狸已解锁');
+            });
+            
+            document.getElementById('unlock-deer-btn').addEventListener('click', async () => {
+                window.zooConfig.unlockAnimal('deer');
+                if (testApp.dataManager.supabase) {
+                    await testApp.dataManager.unlockAnimal('deer');
+                }
+                await testApp.loadUserData();
+                await testApp.loadGrowthProgress();
+                updateDebugInfo();
+                console.log('小鹿已解锁');
+            });
+            
+            document.getElementById('add-exp-btn').addEventListener('click', async () => {
+                // 为所有动物增加随机经验值
+                for (let animal of testApp.userAnimals) {
+                    animal.experience_points = (animal.experience_points || 0) + Math.floor(Math.random() * 50) + 10;
+                    
+                    if (testApp.dataManager.supabase) {
+                        await testApp.dataManager.updateAnimalProgress(animal.id, animal.experience_points);
+                    }
+                }
+                await testApp.loadGrowthProgress();
+                updateDebugInfo();
+                console.log('经验值已增加');
+            });
+            
+            document.getElementById('reset-data-btn').addEventListener('click', () => {
+                localStorage.removeItem('unlockedAnimals');
+                localStorage.removeItem('shownTarotCards');
+                localStorage.removeItem('zoo_user_id');
+                alert('本地数据已重置，请刷新页面');
+            });
+            
+            document.getElementById('refresh-progress-btn').addEventListener('click', async () => {
+                await testApp.loadUserData();
+                await testApp.loadGrowthProgress();
+                updateDebugInfo();
+                console.log('进度已刷新');
+            });
+            
+            // 初始加载进度
+            await testApp.loadGrowthProgress();
+        });
+        
+        function updateDebugInfo() {
+            const unlockedAnimals = window.zooConfig.getUnlockedAnimals();
+            document.getElementById('unlocked-animals').textContent = unlockedAnimals.join(', ');
+            document.getElementById('user-animals-count').textContent = testApp.userAnimals ? testApp.userAnimals.length : 0;
+            document.getElementById('db-status').textContent = testApp.dataManager.supabase ? '已连接' : '本地模式';
+            
+            console.log('调试信息更新:', {
+                unlockedAnimals,
+                userAnimals: testApp.userAnimals,
+                dbStatus: testApp.dataManager.supabase ? '已连接' : '本地模式'
+            });
+        }
+    </script>
+</body>
+</html>
+</text>

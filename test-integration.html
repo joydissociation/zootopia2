@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>虚拟动物园 - 集成测试</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <h1>🎮 虚拟动物园集成测试</h1>
+        
+        <!-- 测试导航 -->
+        <nav class="main-nav" role="navigation" aria-label="主导航">
+            <button class="nav-tab active" data-tab="my-zoo" role="tab" aria-selected="true" tabindex="0">
+                🏠 我的动物园
+            </button>
+            <button class="nav-tab" data-tab="growth-progress" role="tab" aria-selected="false" tabindex="-1">
+                📈 成长进度
+            </button>
+            <button class="nav-tab" data-tab="animal-encyclopedia" role="tab" aria-selected="false" tabindex="-1">
+                📚 动物图鉴
+            </button>
+        </nav>
+
+        <!-- 主内容区域 -->
+        <main class="main-content">
+            <!-- 我的动物园 -->
+            <section id="my-zoo" class="tab-content active" role="tabpanel">
+                <h2>我的动物园</h2>
+                
+                <!-- 心情输入区域 -->
+                <div class="mood-input-section">
+                    <div class="mood-input-container">
+                        <input type="text" id="mood-description" placeholder="描述一下你现在的心情..." maxlength="100">
+                        <button id="analyze-mood-btn">🔍 分析心情</button>
+                    </div>
+                    <div id="mood-analysis-result" class="mood-analysis-result hidden"></div>
+                </div>
+
+                <!-- 天气心情选择器 -->
+                <div class="weather-selector">
+                    <h3>今日心情天气</h3>
+                    <div class="weather-buttons">
+                        <button class="weather-btn" data-weather="sunny">☀️ 晴朗</button>
+                        <button class="weather-btn" data-weather="cloudy">☁️ 多云</button>
+                        <button class="weather-btn" data-weather="rainy">🌧️ 雨天</button>
+                        <button class="weather-btn" data-weather="stormy">⛈️ 暴风雨</button>
+                    </div>
+                </div>
+
+                <!-- 动物展示区域 -->
+                <div class="animals-container">
+                    <!-- 动物卡片将通过JavaScript动态生成 -->
+                </div>
+
+                <!-- 通用聊天区域 -->
+                <div class="general-chat-section">
+                    <h3>💭 快速聊天</h3>
+                    <div class="chat-preview">
+                        <div class="chat-input-simple">
+                            <input type="text" id="general-chat-input" placeholder="说点什么..." maxlength="100">
+                            <button id="general-chat-btn">发送</button>
+                        </div>
+                        <div class="chat-hint">
+                            <p>💡 试试说"我今天很累"或"我想要一只小猫"</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 成长进度 -->
+            <section id="growth-progress" class="tab-content" role="tabpanel">
+                <h2>成长进度</h2>
+                <div class="progress-container">
+                    <!-- 进度条将通过JavaScript动态生成 -->
+                </div>
+            </section>
+
+            <!-- 动物图鉴 -->
+            <section id="animal-encyclopedia" class="tab-content" role="tabpanel">
+                <h2>动物图鉴</h2>
+                <div class="encyclopedia-grid">
+                    <!-- 图鉴卡片将通过JavaScript动态生成 -->
+                </div>
+            </section>
+        </main>
+
+        <!-- 浮动按钮 -->
+        <button class="add-task-btn" title="添加任务">+</button>
+        <button class="chat-btn" title="开始聊天">💬 聊天</button>
+
+        <!-- 测试状态显示 -->
+        <div id="test-status" style="position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: white; padding: 10px; font-family: monospace; font-size: 12px; z-index: 9999;">
+            <div>状态: <span id="init-status">初始化中...</span></div>
+            <div>数据管理器: <span id="data-status">未知</span></div>
+            <div>聊天管理器: <span id="chat-status">未知</span></div>
+            <div>配置: <span id="config-status">未知</span></div>
+        </div>
+    </div>
+
+    <!-- 模态框 -->
+    <div id="task-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>创建新任务</h3>
+            <form id="task-form">
+                <input type="text" id="task-title" placeholder="任务标题" required>
+                <textarea id="task-description" placeholder="任务描述（可选）"></textarea>
+                <select id="garden-zone" required>
+                    <option value="">选择园区</option>
+                    <option value="self-care">自我关怀园区</option>
+                    <option value="physical">身体健康园区</option>
+                    <option value="emotional">情绪关怀园区</option>
+                    <option value="creative">创造力园区</option>
+                    <option value="social">社交连接园区</option>
+                    <option value="organization">生活整理园区</option>
+                    <option value="rest">休息放松园区</option>
+                </select>
+                <div class="modal-buttons">
+                    <button type="button" class="cancel-btn">取消</button>
+                    <button type="submit" class="create-btn">创建</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="chat-modal" class="modal hidden">
+        <div class="modal-content chat-content">
+            <div class="chat-header">
+                <h3 id="chat-title">🐱 选择动物聊天</h3>
+                <div class="chat-controls">
+                    <button id="settings-btn" class="settings-btn">⚙️ 设置</button>
+                    <button class="close-chat-btn">✖️</button>
+                </div>
+            </div>
+
+            <div class="animal-selection">
+                <p>选择一个动物朋友开始聊天：</p>
+                <div class="animal-grid"></div>
+            </div>
+
+            <div class="chat-interface hidden">
+                <div class="chat-messages" id="chat-messages"></div>
+                <div class="chat-input-container">
+                    <input type="text" id="chat-input" placeholder="输入消息..." maxlength="200">
+                    <button id="send-btn">发送</button>
+                </div>
+                <div class="chat-actions">
+                    <button id="reflection-btn" class="action-btn">🤔 开始复盘</button>
+                    <button id="clear-chat-btn" class="action-btn">🗑️ 清空聊天</button>
+                </div>
+            </div>
+
+            <div class="api-config-panel hidden">
+                <h4>🔧 API配置</h4>
+                <form id="api-config-form">
+                    <div class="config-group">
+                        <label for="api-url">API地址:</label>
+                        <input type="url" id="api-url" placeholder="https://api.openai.com/v1/chat/completions" required>
+                        <small>支持OpenAI兼容的API接口</small>
+                    </div>
+                    
+                    <div class="config-group">
+                        <label for="api-key">API密钥:</label>
+                        <input type="password" id="api-key" placeholder="sk-..." required>
+                        <small>你的API密钥将被安全存储</small>
+                    </div>
+                    
+                    <div class="config-group">
+                        <label for="model-name">模型名称:</label>
+                        <input type="text" id="model-name" placeholder="gpt-3.5-turbo" required>
+                        <small>如: gpt-3.5-turbo, gpt-4, claude-3等</small>
+                    </div>
+                    
+                    <div class="config-actions">
+                        <button type="button" id="test-api-btn" class="test-btn">🧪 测试连接</button>
+                        <button type="submit" class="save-btn">💾 保存配置</button>
+                    </div>
+                </form>
+                
+                <div class="config-status hidden" id="config-status"></div>
+                
+                <button id="back-to-chat-btn" class="back-btn">← 返回聊天</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading" class="loading hidden">
+        <div class="spinner"></div>
+        <p>加载中...</p>
+    </div>
+
+    <!-- 脚本加载 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/dataManager.js"></script>
+    <script src="js/chatManager.js"></script>
+    <script src="js/app.js"></script>
+
+    <script>
+        // 测试状态更新
+        function updateTestStatus() {
+            const initStatus = document.getElementById('init-status');
+            const dataStatus = document.getElementById('data-status');
+            const chatStatus = document.getElementById('chat-status');
+            const configStatus = document.getElementById('config-status');
+
+            // 检查初始化状态
+            if (window.app && window.app.isInitialized) {
+                initStatus.textContent = '✅ 已初始化';
+                initStatus.style.color = '#4caf50';
+            } else {
+                initStatus.textContent = '⏳ 初始化中...';
+                initStatus.style.color = '#ff9800';
+            }
+
+            // 检查数据管理器
+            if (window.dataManager) {
+                if (window.dataManager.isInitialized) {
+                    dataStatus.textContent = '✅ 已就绪';
+                    dataStatus.style.color = '#4caf50';
+                } else {
+                    dataStatus.textContent = '⏳ 初始化中...';
+                    dataStatus.style.color = '#ff9800';
+                }
+            } else {
+                dataStatus.textContent = '❌ 未加载';
+                dataStatus.style.color = '#f44336';
+            }
+
+            // 检查聊天管理器
+            if (window.chatManager) {
+                chatStatus.textContent = '✅ 已加载';
+                chatStatus.style.color = '#4caf50';
+            } else {
+                chatStatus.textContent = '❌ 未加载';
+                chatStatus.style.color = '#f44336';
+            }
+
+            // 检查配置
+            if (window.zooConfig) {
+                configStatus.textContent = '✅ 已加载';
+                configStatus.style.color = '#4caf50';
+            } else {
+                configStatus.textContent = '❌ 未加载';
+                configStatus.style.color = '#f44336';
+            }
+        }
+
+        // 定期更新状态
+        setInterval(updateTestStatus, 1000);
+        
+        // 初始更新
+        updateTestStatus();
+
+        // 添加测试按钮
+        document.addEventListener('DOMContentLoaded', () => {
+            const testButton = document.createElement('button');
+            testButton.textContent = '🧪 运行测试';
+            testButton.style.cssText = `
+                position: fixed;
+                bottom: 10px;
+                left: 10px;
+                padding: 10px 15px;
+                background: #2196f3;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-family: monospace;
+                z-index: 9999;
+            `;
+            
+            testButton.addEventListener('click', () => {
+                console.log('=== 虚拟动物园集成测试 ===');
+                console.log('App:', window.app);
+                console.log('DataManager:', window.dataManager);
+                console.log('ChatManager:', window.chatManager);
+                console.log('ZooConfig:', window.zooConfig);
+                
+                if (window.app) {
+                    console.log('用户动物:', window.app.userAnimals);
+                    console.log('当前标签:', window.app.currentTab);
+                }
+                
+                alert('测试结果已输出到控制台，请按F12查看');
+            });
+            
+            document.body.appendChild(testButton);
+        });
+    </script>
+</body>
+</html>
+</text>

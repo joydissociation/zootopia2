@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心情分析测试</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <h1>🌈 心情分析测试</h1>
+        
+        <div class="test-controls" style="margin: 20px 0; padding: 20px; background: #f0f8ff; border: 3px solid #4169e1;">
+            <h3>测试用例</h3>
+            <p>点击下面的按钮来测试不同的心情描述：</p>
+            <button class="test-mood-btn" data-mood="我今天很开心，阳光明媚的感觉">😊 开心</button>
+            <button class="test-mood-btn" data-mood="感觉有点累，心情一般般">😐 一般</button>
+            <button class="test-mood-btn" data-mood="今天很难过，想哭">😢 难过</button>
+            <button class="test-mood-btn" data-mood="我很生气，压力很大">😡 愤怒</button>
+            <button class="test-mood-btn" data-mood="今天心情不错，但有点小担心">🤔 复杂</button>
+        </div>
+
+        <main class="main-content">
+            <section class="tab-content active">
+                <h2>心情分析</h2>
+                
+                <!-- 心情输入区域 -->
+                <div class="mood-input-section">
+                    <div class="mood-input-container">
+                        <input type="text" id="mood-description" placeholder="描述一下你现在的心情..." maxlength="100">
+                        <button id="analyze-mood-btn">🔍 分析心情</button>
+                    </div>
+                    <div id="mood-analysis-result" class="mood-analysis-result hidden"></div>
+                </div>
+
+                <!-- 天气心情选择器 -->
+                <div class="weather-selector">
+                    <h3>今日心情天气</h3>
+                    <div class="weather-buttons">
+                        <button class="weather-btn" data-weather="sunny">☀️ 晴朗</button>
+                        <button class="weather-btn" data-weather="cloudy">☁️ 多云</button>
+                        <button class="weather-btn" data-weather="rainy">🌧️ 雨天</button>
+                        <button class="weather-btn" data-weather="stormy">⛈️ 暴风雨</button>
+                    </div>
+                </div>
+
+                <!-- 测试结果显示 -->
+                <div class="test-results" style="margin-top: 30px; padding: 20px; background: #f5f5f5; border: 2px solid #999;">
+                    <h4>测试结果</h4>
+                    <div id="test-log" style="font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;">
+                        等待测试...
+                    </div>
+                    <button id="clear-log-btn" style="margin-top: 10px; padding: 5px 10px; background: #ff6347; color: white; border: none; cursor: pointer;">清空日志</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 脚本加载 -->
+    <script src="js/config.js"></script>
+    <script src="js/dataManager.js"></script>
+    <script src="js/chatManager.js"></script>
+    <script src="js/app.js"></script>
+
+    <style>
+        .test-mood-btn {
+            margin: 5px;
+            padding: 10px 15px;
+            background: #98FB98;
+            border: 3px solid #32CD32;
+            color: #006400;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .test-mood-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 2px 4px 0px #228B22;
+        }
+        
+        .test-results {
+            border-radius: 0;
+        }
+        
+        #test-log {
+            background: white;
+            border: 1px solid #ccc;
+            padding: 10px;
+            white-space: pre-wrap;
+        }
+    </style>
+
+    <script>
+        let testApp;
+        let logCount = 0;
+        
+        function addLog(message) {
+            const logEl = document.getElementById('test-log');
+            const timestamp = new Date().toLocaleTimeString();
+            logCount++;
+            logEl.textContent += `[${timestamp}] ${logCount}. ${message}\n`;
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            addLog('初始化测试应用...');
+            
+            // 初始化应用
+            testApp = new VirtualZooApp();
+            
+            // 等待初始化完成
+            await new Promise(resolve => {
+                const checkInit = () => {
+                    if (testApp.isInitialized) {
+                        resolve();
+                    } else {
+                        setTimeout(checkInit, 100);
+                    }
+                };
+                checkInit();
+            });
+            
+            addLog('应用初始化完成');
+            
+            // 绑定测试按钮事件
+            document.querySelectorAll('.test-mood-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const mood = btn.dataset.mood;
+                    const moodInput = document.getElementById('mood-description');
+                    
+                    addLog(`测试心情: "${mood}"`);
+                    
+                    moodInput.value = mood;
+                    testApp.analyzeMoodDescription();
+                    
+                    // 监听分析结果
+                    setTimeout(() => {
+                        const selectedBtn = document.querySelector('.weather-btn.selected');
+                        if (selectedBtn) {
+                            const weather = selectedBtn.dataset.weather;
+                            addLog(`分析结果: ${weather} (${selectedBtn.textContent})`);
+                        }
+                    }, 2000);
+                });
+            });
+            
+            // 清空日志按钮
+            document.getElementById('clear-log-btn').addEventListener('click', () => {
+                document.getElementById('test-log').textContent = '';
+                logCount = 0;
+                addLog('日志已清空');
+            });
+            
+            // 监听天气按钮点击
+            document.querySelectorAll('.weather-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const weather = btn.dataset.weather;
+                    addLog(`手动选择天气: ${weather} (${btn.textContent})`);
+                });
+            });
+            
+            addLog('测试页面准备就绪！');
+        });
+    </script>
+</body>
+</html>
+</text>

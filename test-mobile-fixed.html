@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>手机版修复测试 - 虚拟动物园</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        /* 测试提示条 */
+        .test-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(90deg, #FF69B4, #FFB6C1);
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            font-weight: bold;
+            z-index: 10000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        /* 为测试横幅留出空间 */
+        body.mobile-version #app {
+            margin-top: 35px;
+            height: calc(100vh - 35px);
+            height: calc(calc(var(--vh, 1vh) * 100) - 35px);
+        }
+        
+        /* 调整切换器位置 */
+        .version-switcher {
+            top: 45px !important;
+        }
+        
+        .theme-switcher {
+            top: 45px !important;
+        }
+        
+        /* 移动端指示器 */
+        .mobile-indicator {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,105,180,0.9);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            z-index: 9998;
+            backdrop-filter: blur(10px);
+        }
+        
+        /* 屏幕尺寸显示 */
+        .screen-info {
+            position: fixed;
+            top: 50px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 9px;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body class="mobile-version">
+    <!-- 测试横幅 -->
+    <div class="test-banner">
+        📱 手机版修复测试 - 真正的移动端适配体验
+    </div>
+    
+    <!-- 屏幕信息显示 -->
+    <div class="screen-info" id="screen-info">
+        屏幕: 加载中...
+    </div>
+    
+    <!-- 移动端指示器 -->
+    <div class="mobile-indicator">
+        📱 手机版模式 - 已优化移动端体验
+    </div>
+    
+    <div id="app">
+        <!-- 主导航 -->
+        <nav class="main-nav" role="tablist" aria-label="主要导航">
+            <button class="nav-tab active" data-tab="my-zoo" role="tab" aria-selected="true" aria-controls="my-zoo" tabindex="0">我的动物园</button>
+            <button class="nav-tab" data-tab="growth-progress" role="tab" aria-selected="false" aria-controls="growth-progress" tabindex="-1">成长进度</button>
+            <button class="nav-tab" data-tab="animal-encyclopedia" role="tab" aria-selected="false" aria-controls="animal-encyclopedia" tabindex="-1">动物图鉴</button>
+        </nav>
+
+        <!-- 主内容区域 -->
+        <main class="main-content">
+            <!-- 我的动物园页面 -->
+            <section id="my-zoo" class="tab-content active" role="tabpanel" aria-labelledby="my-zoo-tab">
+                <div class="weather-selector">
+                    <h3>今天的天气</h3>
+                    
+                    <!-- 心情描述输入 -->
+                    <div class="mood-input-section">
+                        <div class="mood-input-container">
+                            <input type="text" id="mood-description" placeholder="用一句话描述你今天的心情..." maxlength="100">
+                            <button id="analyze-mood-btn">分析心情</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 天气按钮 -->
+                    <div class="weather-buttons">
+                        <button class="weather-btn" data-weather="sunny">☀️ 晴朗</button>
+                        <button class="weather-btn" data-weather="cloudy">☁️ 多云</button>
+                        <button class="weather-btn" data-weather="rainy">🌧️ 雨天</button>
+                        <button class="weather-btn" data-weather="stormy">⛈️ 暴风雨</button>
+                    </div>
+                </div>
+
+                <div class="animals-container">
+                    <!-- 示例动物卡片 -->
+                    <div class="animal-card" data-animal-type="cat">
+                        <div class="animal-image-container">
+                            <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=200&h=200&fit=crop&crop=face" alt="小猫咪" class="animal-photo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="animal-emoji-fallback" style="display: none;">🐱</div>
+                        </div>
+                        <div class="animal-info">
+                            <h4>小猫咪</h4>
+                            <p class="growth-stage">少年阶段</p>
+                            <p class="task-count">今日任务: 2/3</p>
+                            <p class="gentle-tip">代表自我关怀和温柔对待自己</p>
+                        </div>
+                    </div>
+                    
+                    <div class="animal-card" data-animal-type="fox">
+                        <div class="animal-image-container">
+                            <img src="https://images.unsplash.com/photo-1474511320723-9a56873867b5?w=200&h=200&fit=crop&crop=face" alt="小狐狸" class="animal-photo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="animal-emoji-fallback" style="display: none;">🦊</div>
+                        </div>
+                        <div class="animal-info">
+                            <h4>小狐狸</h4>
+                            <p class="growth-stage">幼崽阶段</p>
+                            <p class="task-count">今日任务: 1/3</p>
+                            <p class="gentle-tip">代表情绪表达、心理健康、压力管理</p>
+                        </div>
+                    </div>
+                    
+                    <div class="animal-card" data-animal-type="rabbit">
+                        <div class="animal-image-container">
+                            <img src="https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?w=200&h=200&fit=crop&crop=face" alt="小兔子" class="animal-photo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="animal-emoji-fallback" style="display: none;">🐰</div>
+                        </div>
+                        <div class="animal-info">
+                            <h4>小兔子</h4>
+                            <p class="growth-stage">幼崽阶段</p>
+                            <p class="task-count">今日任务: 0/3</p>
+                            <p class="gentle-tip">代表创造力和艺术表达</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 通用对话框 -->
+                <div class="general-chat-section">
+                    <h3>💬 和动物朋友们聊聊</h3>
+                    <div class="chat-preview">
+                        <div class="chat-input-simple">
+                            <input type="text" id="general-chat-input" placeholder="说说你今天的想法..." maxlength="200">
+                            <button id="general-chat-btn">发送</button>
+                        </div>
+                        <div class="chat-hint">
+                            <p>💡 提示：聊天时提到不同话题可能会解锁新的动物朋友哦！</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="add-task-btn">+</button>
+                <button class="chat-btn">详细聊天</button>
+            </section>
+
+            <!-- 成长进度页面 -->
+            <section id="growth-progress" class="tab-content" role="tabpanel" aria-labelledby="growth-progress-tab">
+                <h2>成长进度</h2>
+                
+                <!-- 任务总览区域 -->
+                <div class="tasks-overview-section">
+                    <h3>📋 任务总览</h3>
+                    
+                    <!-- 任务统计 -->
+                    <div class="tasks-stats">
+                        <div class="stat-card">
+                            <div class="stat-number" id="total-tasks">12</div>
+                            <div class="stat-label">总任务</div>
+                        </div>
+                        <div class="stat-card completed">
+                            <div class="stat-number" id="completed-tasks">8</div>
+                            <div class="stat-label">已完成</div>
+                        </div>
+                        <div class="stat-card pending">
+                            <div class="stat-number" id="pending-tasks">3</div>
+                            <div class="stat-label">进行中</div>
+                        </div>
+                        <div class="stat-card deleted">
+                            <div class="stat-number" id="deleted-tasks">1</div>
+                            <div class="stat-label">已删除</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 任务筛选 -->
+                    <div class="tasks-filter">
+                        <button class="filter-btn active" data-filter="all">全部任务</button>
+                        <button class="filter-btn" data-filter="pending">进行中</button>
+                        <button class="filter-btn" data-filter="completed">已完成</button>
+                        <button class="filter-btn" data-filter="deleted">已删除</button>
+                    </div>
+                    
+                    <!-- 任务列表 -->
+                    <div class="all-tasks-list" id="all-tasks-list">
+                        <!-- 示例任务项 -->
+                        <div class="overview-task-item completed">
+                            <div class="task-animal-icon">🐱</div>
+                            <div class="overview-task-content">
+                                <div class="overview-task-title">给自己泡一杯喜欢的茶</div>
+                                <div class="overview-task-meta">
+                                    <span class="task-animal-name">小猫咪</span>
+                                    <span class="task-zone-label">自我关怀园区</span>
+                                    <span class="task-status-badge completed">已完成</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="overview-task-item pending">
+                            <div class="task-animal-icon">🦊</div>
+                            <div class="overview-task-content">
+                                <div class="overview-task-title">写下现在的感受，不加评判</div>
+                                <div class="overview-task-meta">
+                                    <span class="task-animal-name">小狐狸</span>
+                                    <span class="task-zone-label">情绪关怀园区</span>
+                                    <span class="task-status-badge pending">进行中</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="overview-task-item deleted">
+                            <div class="task-animal-icon">🐰</div>
+                            <div class="overview-task-content">
+                                <div class="overview-task-title">画一幅简单的涂鸦</div>
+                                <div class="overview-task-meta">
+                                    <span class="task-animal-name">小兔子</span>
+                                    <span class="task-zone-label">创造力园区</span>
+                                    <span class="task-status-badge deleted">已删除</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 成长进度区域 -->
+                <div class="growth-progress-section">
+                    <h3>📈 动物成长进度</h3>
+                    <div class="progress-container">
+                        <div class="animal-progress">
+                            <div class="animal-name">🐱 小猫咪</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 65%"></div>
+                            </div>
+                            <div class="progress-info">
+                                <span class="progress-text">65%</span>
+                                <span class="growth-stage">少年</span>
+                            </div>
+                            <div class="experience-info">
+                                <small>经验值: 195 / 300</small>
+                            </div>
+                        </div>
+                        
+                        <div class="animal-progress">
+                            <div class="animal-name">🦊 小狐狸</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 30%"></div>
+                            </div>
+                            <div class="progress-info">
+                                <span class="progress-text">30%</span>
+                                <span class="growth-stage">幼崽</span>
+                            </div>
+                            <div class="experience-info">
+                                <small>经验值: 30 / 100</small>
+                            </div>
+                        </div>
+                        
+                        <div class="animal-progress">
+                            <div class="animal-name">🐰 小兔子</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 10%"></div>
+                            </div>
+                            <div class="progress-info">
+                                <span class="progress-text">10%</span>
+                                <span class="growth-stage">幼崽</span>
+                            </div>
+                            <div class="experience-info">
+                                <small>经验值: 10 / 100</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 动物图鉴页面 -->
+            <section id="animal-encyclopedia" class="tab-content" role="tabpanel" aria-labelledby="animal-encyclopedia-tab">
+                <h2>动物图鉴</h2>
+                <div class="encyclopedia-grid">
+                    <!-- 示例图鉴卡片 -->
+                    <div class="encyclopedia-card" data-animal-type="cat">
+                        <div class="encyclopedia-animal-image">
+                            <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=200&h=200&fit=crop&crop=face" alt="小猫咪" class="encyclopedia-photo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="encyclopedia-emoji-fallback" style="display: none;">🐱</div>
+                        </div>
+                        <h4>小猫咪</h4>
+                        <p>代表自我关怀和温柔对待自己</p>
+                        <span class="status owned">已拥有</span>
+                        <button class="view-tarot-btn">查看塔罗牌</button>
+                    </div>
+                    
+                    <div class="encyclopedia-card" data-animal-type="fox">
+                        <div class="encyclopedia-animal-image">
+                            <img src="https://images.unsplash.com/photo-1474511320723-9a56873867b5?w=200&h=200&fit=crop&crop=face" alt="小狐狸" class="encyclopedia-photo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="encyclopedia-emoji-fallback" style="display: none;">🦊</div>
+                        </div>
+                        <h4>小狐狸</h4>
+                        <p>代表情绪表达、心理健康、压力管理</p>
+                        <span class="status owned">已拥有</span>
+                        <button class="view-tarot-btn">查看塔罗牌</button>
+                    </div>
+                    
+                    <div class="encyclopedia-card locked" data-animal-type="deer">
+                        <div class="encyclopedia-animal-image">
+                            <img src="https://via.placeholder.com/200x200/cccccc/666666?text=?" alt="???" class="encyclopedia-photo">
+                            <div class="encyclopedia-emoji-fallback" style="display: none;">❓</div>
+                        </div>
+                        <h4>???</h4>
+                        <p>完成相关任务解锁</p>
+                        <span class="status locked">未解锁</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/dataManager.js"></script>
+    <script src="js/chatManager.js"></script>
+    <script src="js/app.js"></script>
+    
+    <script>
+        // 手机版修复测试脚本
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('手机版修复测试页面加载完成');
+            
+            // 显示屏幕信息
+            function updateScreenInfo() {
+                const screenInfo = document.getElementById('screen-info');
+                if (screenInfo) {
+                    const width = window.innerWidth;
+                    const height = window.innerHeight;
+                    const ratio = (width / height).toFixed(2);
+                    screenInfo.textContent = `屏幕: ${width}×${height} (${ratio})`;
+                }
+            }
+            
+            updateScreenInfo();
+            window.addEventListener('resize', updateScreenInfo);
+            window.addEventListener('orientationchange', () => {
+                setTimeout(updateScreenInfo, 100);
+            });
+            
+            // 设置视口高度变量
+            const setVH = () => {
+                const vh = window.innerHeight * 0.01;
+                document.documentElement.style.setProperty('--vh', `${vh}px`);
+                console.log('视口高度已更新:', vh);
+            };
+            
+            setVH();
+            window.addEventListener('resize', setVH);
+            window.addEventListener('orientationchange', () => {
+                setTimeout(setVH, 100);
+            });
+            
+            // 简单的导航切换功能
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    // 移除所有活动状态
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // 添加当前活动状态
+                    e.target.classList.add('active');
+                    const targetId = e.target.dataset.tab;
+                    document.getElementById(targetId).classList.add('active');
+                    
+                    console.log('切换到标签页:', targetId);
+                });
+            });
+            
+            // 简单的筛选功能
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    const filter = e.target.dataset.filter;
+                    console.log('任务筛选:', filter);
+                    
+                    // 简单的筛选逻辑
+                    const tasks = document.querySelectorAll('.overview-task-item');
+                    tasks.forEach(task => {
+                        if (filter === 'all') {
+                            task.style.display = 'flex';
+                        } else {
+                            task.style.display = task.classList.contains(filter) ? 'flex' : 'none';
+                        }
+                    });
+                });
+            });
+            
+            // 添加触摸反馈
+            document.addEventListener('touchstart', function(e) {
+                if (e.target.matches('button, .nav-tab, .animal-card, .filter-btn')) {
+                    e.target.style.transform = 'scale(0.95)';
+                }
+            }, {passive: true});
+            
+            document.addEventListener('touchend', function(e) {
+                if (e.target.matches('button, .nav-tab, .animal-card, .filter-btn')) {
+                    setTimeout(() => {
+                        e.target.style.transform = '';
+                    }, 100);
+                }
+            }, {passive: true});
+            
+            // 防止双击缩放
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', function (event) {
+                const now = (new Date()).getTime();
+                if (now - lastTouchEnd <= 300) {
+                    event.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, false);
+            
+            console.log('手机版优化功能已启用');
+        });
+    </script>
+</body>
+</html>

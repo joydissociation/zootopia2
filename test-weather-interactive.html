@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌤️ 天气互动背景演示</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <h1 style="text-align: center; color: #8B4513; font-family: 'Courier New', monospace; margin-bottom: 30px; font-size: 28px; text-shadow: 2px 2px 4px rgba(139,69,19,0.3);">
+            🌤️✨ 天气互动背景演示 ✨🌤️
+        </h1>
+        
+        <!-- 演示说明 -->
+        <div style="text-align: center; margin-bottom: 30px; padding: 20px; background: rgba(255,255,255,0.9); border-radius: 15px; border: 3px solid #87CEEB; backdrop-filter: blur(5px);">
+            <h3 style="color: #2F4F4F; font-family: 'Courier New', monospace; margin-bottom: 15px;">🎭 天气互动效果说明</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; font-family: 'Courier New', monospace; font-size: 12px;">
+                <div style="text-align: center; padding: 15px; background: rgba(255,215,0,0.1); border: 2px solid #FFD700; border-radius: 10px;">
+                    <div style="font-size: 32px; margin-bottom: 8px;">☀️</div>
+                    <div style="font-weight: bold; color: #FF8C00; margin-bottom: 5px;">晴天效果</div>
+                    <div style="color: #666; line-height: 1.3;">金色光点闪烁<br>阳光洒向大地<br>温暖明亮的感觉</div>
+                </div>
+                <div style="text-align: center; padding: 15px; background: rgba(135,206,235,0.1); border: 2px solid #87CEEB; border-radius: 10px;">
+                    <div style="font-size: 32px; margin-bottom: 8px;">☁️</div>
+                    <div style="font-weight: bold; color: #4682B4; margin-bottom: 5px;">多云效果</div>
+                    <div style="color: #666; line-height: 1.3;">云朵缓缓飘动<br>从左到右移动<br>柔和宁静的氛围</div>
+                </div>
+                <div style="text-align: center; padding: 15px; background: rgba(173,216,230,0.1); border: 2px solid #ADD8E6; border-radius: 10px;">
+                    <div style="font-size: 32px; margin-bottom: 8px;">🌧️</div>
+                    <div style="font-weight: bold; color: #4169E1; margin-bottom: 5px;">雨天效果</div>
+                    <div style="color: #666; line-height: 1.3;">雨滴垂直下落<br>不同粗细的雨线<br>滋润心田的感觉</div>
+                </div>
+                <div style="text-align: center; padding: 15px; background: rgba(75,0,130,0.1); border: 2px solid #4B0082; border-radius: 10px;">
+                    <div style="font-size: 32px; margin-bottom: 8px;">⛈️</div>
+                    <div style="font-weight: bold; color: #8A2BE2; margin-bottom: 5px;">暴风雨效果</div>
+                    <div style="color: #666; line-height: 1.3;">强烈雨滴下落<br>闪电白光效果<br>释放内心力量</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 主内容区域 -->
+        <main class="main-content">
+            <section class="tab-content active">
+                <h2>选择天气体验互动背景</h2>
+                
+                <!-- 天气选择器 -->
+                <div class="weather-selector">
+                    <h3>今天的天气</h3>
+                    <div class="weather-buttons">
+                        <button class="weather-btn" data-weather="sunny">☀️ 晴朗</button>
+                        <button class="weather-btn" data-weather="cloudy">☁️ 多云</button>
+                        <button class="weather-btn" data-weather="rainy">🌧️ 雨天</button>
+                        <button class="weather-btn" data-weather="stormy">⛈️ 暴风雨</button>
+                    </div>
+                </div>
+
+                <!-- 心情描述输入 -->
+                <div class="mood-input-section">
+                    <div class="mood-input-container">
+                        <input type="text" id="mood-description" placeholder="描述你的心情，AI会自动判断天气..." maxlength="100">
+                        <button id="analyze-mood-btn">🔍 分析心情</button>
+                    </div>
+                    <div id="mood-analysis-result" class="mood-analysis-result hidden"></div>
+                </div>
+
+                <!-- 效果展示区域 -->
+                <div style="margin-top: 30px; padding: 25px; background: rgba(255,255,255,0.8); border: 3px solid #DDA0DD; border-radius: 20px; backdrop-filter: blur(5px);">
+                    <h3 style="text-align: center; color: #8B4513; font-family: 'Courier New', monospace; margin-bottom: 20px;">🎨 当前天气效果</h3>
+                    <div id="current-weather-display" style="text-align: center; font-family: 'Courier New', monospace; color: #666; font-style: italic;">
+                        请选择或分析天气来查看背景互动效果
+                    </div>
+                </div>
+
+                <!-- 主题切换演示 -->
+                <div style="margin-top: 30px; padding: 25px; background: rgba(240,248,255,0.8); border: 3px solid #87CEEB; border-radius: 20px; backdrop-filter: blur(5px);">
+                    <h3 style="text-align: center; color: #2F4F4F; font-family: 'Courier New', monospace; margin-bottom: 20px;">🎭 不同主题下的天气效果</h3>
+                    <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                        <button class="theme-demo-btn" data-theme="cute" style="padding: 10px 15px; background: #FFB6C1; color: white; border: none; border-radius: 15px; font-family: 'Courier New', monospace; font-weight: bold; cursor: pointer;">
+                            🌸 可爱梦幻
+                        </button>
+                        <button class="theme-demo-btn" data-theme="retro" style="padding: 10px 15px; background: #FF6B35; color: white; border: none; border-radius: 0; font-family: 'Courier New', monospace; font-weight: bold; cursor: pointer;">
+                            🕹️ 复古波普
+                        </button>
+                        <button class="theme-demo-btn" data-theme="animal-crossing" style="padding: 10px 15px; background: #4CAF50; color: white; border: none; border-radius: 0; font-family: 'Courier New', monospace; font-weight: bold; cursor: pointer;">
+                            🍃 动森风格
+                        </button>
+                    </div>
+                    <div style="text-align: center; margin-top: 15px; font-size: 12px; color: #666; font-family: 'Courier New', monospace;">
+                        切换主题后再选择天气，体验不同风格的天气效果
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 脚本加载 -->
+    <script src="js/config.js"></script>
+    <script src="js/dataManager.js"></script>
+    <script src="js/chatManager.js"></script>
+    <script src="js/app.js"></script>
+
+    <script>
+        let weatherApp;
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 初始化应用
+            weatherApp = new VirtualZooApp();
+            
+            // 天气按钮点击事件
+            document.querySelectorAll('.weather-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const weather = btn.dataset.weather;
+                    
+                    // 更新按钮状态
+                    document.querySelectorAll('.weather-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    
+                    // 应用天气背景效果
+                    if (weatherApp && weatherApp.applyWeatherBackground) {
+                        weatherApp.applyWeatherBackground(weather);
+                    }
+                    
+                    // 更新显示
+                    updateWeatherDisplay(weather);
+                });
+            });
+            
+            // 心情分析按钮
+            document.getElementById('analyze-mood-btn').addEventListener('click', () => {
+                const input = document.getElementById('mood-description');
+                const description = input.value.trim();
+                
+                if (!description) {
+                    alert('请先描述你的心情');
+                    return;
+                }
+                
+                // 模拟分析
+                const btn = document.getElementById('analyze-mood-btn');
+                btn.classList.add('analyzing');
+                btn.textContent = '🔍 分析中...';
+                btn.disabled = true;
+                
+                setTimeout(() => {
+                    // 简单的关键词匹配
+                    let weather = 'sunny'; // 默认晴天
+                    const lowerDesc = description.toLowerCase();
+                    
+                    if (lowerDesc.includes('难过') || lowerDesc.includes('伤心') || lowerDesc.includes('哭')) {
+                        weather = 'rainy';
+                    } else if (lowerDesc.includes('愤怒') || lowerDesc.includes('生气') || lowerDesc.includes('烦躁')) {
+                        weather = 'stormy';
+                    } else if (lowerDesc.includes('平静') || lowerDesc.includes('还好') || lowerDesc.includes('一般')) {
+                        weather = 'cloudy';
+                    }
+                    
+                    // 恢复按钮
+                    btn.classList.remove('analyzing');
+                    btn.textContent = '🔍 分析心情';
+                    btn.disabled = false;
+                    
+                    // 选择对应天气
+                    const targetBtn = document.querySelector(`[data-weather="${weather}"]`);
+                    if (targetBtn) {
+                        targetBtn.click();
+                    }
+                    
+                    // 清空输入
+                    input.value = '';
+                    
+                }, 2000);
+            });
+            
+            // 主题切换按钮
+            document.querySelectorAll('.theme-demo-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const theme = btn.dataset.theme;
+                    if (weatherApp && weatherApp.switchTheme) {
+                        weatherApp.switchTheme(theme);
+                    }
+                    
+                    // 更新按钮状态
+                    document.querySelectorAll('.theme-demo-btn').forEach(b => {
+                        b.style.opacity = '0.7';
+                        b.style.transform = 'scale(1)';
+                    });
+                    btn.style.opacity = '1';
+                    btn.style.transform = 'scale(1.05)';
+                });
+            });
+            
+            // 输入框回车事件
+            document.getElementById('mood-description').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('analyze-mood-btn').click();
+                }
+            });
+            
+            console.log('天气互动演示页面已加载');
+        });
+        
+        // 更新天气显示
+        function updateWeatherDisplay(weather) {
+            const weatherInfo = {
+                sunny: {
+                    name: '晴朗',
+                    emoji: '☀️',
+                    description: '阳光闪烁，金色光点在背景中轻柔飘动',
+                    color: '#FFD700'
+                },
+                cloudy: {
+                    name: '多云',
+                    emoji: '☁️',
+                    description: '云朵缓缓飘过，营造宁静舒适的氛围',
+                    color: '#87CEEB'
+                },
+                rainy: {
+                    name: '雨天',
+                    emoji: '🌧️',
+                    description: '雨滴垂直下落，带来清新滋润的感觉',
+                    color: '#4682B4'
+                },
+                stormy: {
+                    name: '暴风雨',
+                    emoji: '⛈️',
+                    description: '强烈雨滴配合闪电效果，释放内心力量',
+                    color: '#483D8B'
+                }
+            };
+            
+            const info = weatherInfo[weather];
+            if (info) {
+                const display = document.getElementById('current-weather-display');
+                display.innerHTML = `
+                    <div style="font-size: 48px; margin-bottom: 15px;">${info.emoji}</div>
+                    <div style="font-size: 20px; font-weight: bold; color: ${info.color}; margin-bottom: 10px;">${info.name}</div>
+                    <div style="font-size: 14px; color: #666; line-height: 1.4;">${info.description}</div>
+                `;
+                display.style.color = info.color;
+                display.style.fontStyle = 'normal';
+            }
+        }
+    </script>
+</body>
+</html>

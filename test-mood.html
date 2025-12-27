@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心情天气分析测试</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- 测试说明 -->
+        <div style="background: linear-gradient(135deg, #E6E6FA, #F0F8FF); border: 4px solid #9370DB; padding: 30px; margin: 20px; text-align: center; color: #4B0082;">
+            <h1 style="margin: 0 0 20px 0; font-family: 'Courier New', monospace; font-size: 24px; text-transform: uppercase; letter-spacing: 3px;">
+                🌤️ 心情天气分析测试
+            </h1>
+            <p style="margin: 0 0 20px 0; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6;">
+                输入你的心情描述，AI系统会分析并给出对应的天气类型、温度和建议<br>
+                支持各种情绪表达，系统会智能匹配最合适的天气
+            </p>
+            
+            <!-- 心情分析区域 -->
+            <div class="mood-input-section" style="max-width: 600px; margin: 0 auto;">
+                <div class="mood-input-container">
+                    <input type="text" id="mood-description" placeholder="用一句话描述你今天的心情..." maxlength="100">
+                    <button id="analyze-mood-btn">分析心情</button>
+                </div>
+                <div class="mood-analysis-result hidden" id="mood-analysis-result">
+                    <!-- 分析结果将在这里显示 -->
+                </div>
+            </div>
+            
+            <!-- 快速测试按钮 -->
+            <div style="margin-top: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <button onclick="testMood('今天心情特别好，阳光明媚')" class="mood-test-btn">😊 测试开心</button>
+                <button onclick="testMood('感觉有点累，想要安静一下')" class="mood-test-btn">😐 测试平静</button>
+                <button onclick="testMood('今天有点难过，心情低落')" class="mood-test-btn">😢 测试难过</button>
+                <button onclick="testMood('压力很大，感觉要崩溃了')" class="mood-test-btn">😤 测试焦虑</button>
+            </div>
+            
+            <!-- 更多测试样例 -->
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #9370DB;">
+                <h3 style="margin: 0 0 15px 0; font-family: 'Courier New', monospace; color: #4B0082;">更多测试样例</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+                    <button onclick="testMood('超级开心！')" class="mood-sample-btn">超级开心！</button>
+                    <button onclick="testMood('还不错吧')" class="mood-sample-btn">还不错吧</button>
+                    <button onclick="testMood('有点迷茫')" class="mood-sample-btn">有点迷茫</button>
+                    <button onclick="testMood('非常愤怒')" class="mood-sample-btn">非常愤怒</button>
+                    <button onclick="testMood('感觉孤独')" class="mood-sample-btn">感觉孤独</button>
+                    <button onclick="testMood('充满活力')" class="mood-sample-btn">充满活力</button>
+                    <button onclick="testMood('无聊透了')" class="mood-sample-btn">无聊透了</button>
+                    <button onclick="testMood('压力山大')" class="mood-sample-btn">压力山大</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 天气按钮显示区域 -->
+        <div style="background: #F5F5DC; border: 4px solid #8B4513; padding: 20px; margin: 20px; text-align: center;">
+            <h3 style="margin: 0 0 15px 0; color: #8B4513; font-family: 'Courier New', monospace;">当前心情天气</h3>
+            <div class="weather-buttons">
+                <button class="weather-btn" data-weather="sunny">☀️ 晴朗</button>
+                <button class="weather-btn" data-weather="cloudy">☁️ 多云</button>
+                <button class="weather-btn" data-weather="rainy">🌧️ 雨天</button>
+                <button class="weather-btn" data-weather="stormy">⛈️ 暴风雨</button>
+            </div>
+        </div>
+        
+        <!-- 加载指示器 -->
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>加载中...</p>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/dataManager.js"></script>
+    <script src="js/chatManager.js"></script>
+    <script src="js/app.js"></script>
+    
+    <style>
+        .mood-test-btn {
+            background: linear-gradient(145deg, #FF69B4, #FF1493);
+            border: 3px solid #FF1493;
+            color: white;
+            padding: 12px 20px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        .mood-test-btn:hover {
+            background: linear-gradient(145deg, #FF1493, #DC143C);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+        }
+        
+        .mood-sample-btn {
+            background: linear-gradient(145deg, #87CEEB, #4682B4);
+            border: 2px solid #4682B4;
+            color: white;
+            padding: 8px 12px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .mood-sample-btn:hover {
+            background: linear-gradient(145deg, #4682B4, #2F4F4F);
+            transform: translateY(-1px);
+        }
+    </style>
+    
+    <script>
+        // 等待应用初始化
+        setTimeout(() => {
+            console.log('🌤️ 心情天气分析测试页面已加载');
+            
+            // 绑定心情分析事件
+            document.getElementById('analyze-mood-btn').addEventListener('click', () => {
+                if (app && app.analyzeMoodDescription) {
+                    app.analyzeMoodDescription();
+                } else {
+                    console.error('应用未完全加载');
+                }
+            });
+            
+            document.getElementById('mood-description').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (app && app.analyzeMoodDescription) {
+                        app.analyzeMoodDescription();
+                    }
+                }
+            });
+        }, 1000);
+        
+        // 测试指定心情
+        function testMood(moodText) {
+            const input = document.getElementById('mood-description');
+            input.value = moodText;
+            
+            // 触发分析
+            if (app && app.analyzeMoodDescription) {
+                app.analyzeMoodDescription();
+            } else {
+                console.error('应用未完全加载');
+            }
+        }
+        
+        // 随机测试
+        function randomMoodTest() {
+            const randomMoods = [
+                '今天阳光很好，心情也很棒',
+                '感觉有点累，想要休息',
+                '工作压力好大，有点焦虑',
+                '和朋友聊天很开心',
+                '下雨天，心情也有点阴沉',
+                '完成了目标，很有成就感',
+                '有点无聊，不知道做什么',
+                '看到美丽的风景，心情舒畅'
+            ];
+            
+            const randomMood = randomMoods[Math.floor(Math.random() * randomMoods.length)];
+            testMood(randomMood);
+        }
+        
+        // 键盘快捷键
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'r' || e.key === 'R') {
+                randomMoodTest();
+            }
+        });
+        
+        // 显示快捷键提示
+        setTimeout(() => {
+            console.log('💡 快捷键提示:');
+            console.log('- 按 R 键进行随机心情测试');
+            console.log('- 按 Enter 键分析当前输入的心情');
+        }, 2000);
+    </script>
+</body>
+</html>
